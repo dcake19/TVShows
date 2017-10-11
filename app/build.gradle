@@ -1,0 +1,94 @@
+apply plugin: 'com.android.application'
+apply plugin: 'com.neenbedankt.android-apt'
+
+android {
+    compileSdkVersion 25
+    buildToolsVersion "25.0.2"
+    defaultConfig {
+        applicationId "com.example.android.tvshows"
+        minSdkVersion 16
+        targetSdkVersion 25
+        versionCode 1
+        versionName "1.0"
+        //testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner "com.example.android.tvshows.ShowsTestRunner"
+        multiDexEnabled true
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+    buildTypes.each {
+        //Enter tmdb api key here
+        it.buildConfigField 'String', 'TMDB_API_KEY', "\"7d86ea3dba098f1a39ee6f754bb8859c\""
+    }
+
+    testOptions {
+        unitTests.returnDefaultValues = true
+    }
+}
+
+dependencies {
+
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+//    androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
+//        exclude group: 'com.android.support', module: 'support-annotations'
+//    })
+    provided 'javax.annotation:jsr250-api:1.0'
+    androidTestCompile 'com.android.support:support-annotations:25.3.1'
+    androidTestCompile 'com.android.support.test:runner:0.5';
+    androidTestCompile 'com.android.support.test:rules:0.5';
+    androidTestCompile 'com.android.support.test.espresso:espresso-core:2.2.1';
+    androidTestCompile 'com.android.support.test.espresso:espresso-intents:2.2.1'
+    androidTestCompile('com.android.support.test.espresso:espresso-contrib:2.2') {
+        // Necessary to avoid version conflicts
+        exclude group: 'com.android.support', module: 'appcompat'
+        exclude group: 'com.android.support', module: 'support-v4'
+        exclude group: 'com.android.support', module: 'support-annotations'
+        exclude module: 'recyclerview-v7'
+    }
+    androidTestCompile 'org.mockito:mockito-core:1.9.5'
+    androidTestCompile 'com.google.dexmaker:dexmaker:1.2'
+    androidTestCompile 'com.google.dexmaker:dexmaker-mockito:1.2'
+    compile 'com.android.support.test.espresso:espresso-idling-resource:2.2.1'
+    testCompile 'junit:junit:4.12'
+    testCompile "org.mockito:mockito-all:1.10.19"
+    testCompile "org.hamcrest:hamcrest-all:1.3"
+    testCompile "org.powermock:powermock-module-junit4:1.6.2"
+    testCompile "org.powermock:powermock-api-mockito:1.6.2"
+
+    compile 'com.android.support:appcompat-v7:25.3.1'
+    compile 'com.android.support:design:25.3.1'
+    compile 'com.android.support:cardview-v7:25.3.1'
+    compile 'com.github.aakira:expandable-layout:1.6.0@aar'
+    //flow layout
+    compile 'org.apmem.tools:layouts:1.10@aar'
+
+    compile 'com.squareup.picasso:picasso:2.5.2'
+    compile 'com.jakewharton.picasso:picasso2-okhttp3-downloader:1.0.2'
+    compile 'com.squareup.okhttp3:logging-interceptor:3.2.0'
+    compile 'com.jakewharton.timber:timber:4.3.1'
+
+    // Retrofit
+    compile 'com.squareup.retrofit2:retrofit:2.1.0'
+
+    // JSON Parsing
+    compile 'com.google.code.gson:gson:2.6.1'
+    compile 'com.squareup.retrofit2:converter-gson:2.1.0'
+
+    // RxJava2
+    compile 'io.reactivex.rxjava2:rxjava:2.0.6'
+    compile 'io.reactivex.rxjava2:rxandroid:2.0.1'
+    compile 'com.squareup.retrofit2:adapter-rxjava2:2.2.0'
+
+    // Butterknife
+    compile 'com.jakewharton:butterknife:8.0.1'
+    apt 'com.jakewharton:butterknife-compiler:8.0.1'
+
+    //dagger2
+    compile 'com.google.dagger:dagger:2.0.2'
+    apt 'com.google.dagger:dagger-compiler:2.0.2'
+
+}
