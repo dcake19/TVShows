@@ -6,7 +6,6 @@ import com.example.android.tvshows.data.model.search.Result;
 import com.example.android.tvshows.data.rest.ApiService;
 import com.example.android.tvshows.ui.find.ResultsContract;
 import com.example.android.tvshows.ui.find.ResultsPresenter;
-import com.example.android.tvshows.ui.find.SaveResultsPresenterState;
 
 import org.junit.Before;
 import org.junit.Test;

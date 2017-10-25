@@ -22,6 +22,7 @@ import android.widget.ProgressBar;
 import com.example.android.tvshows.R;
 import com.example.android.tvshows.ShowsApplication;
 import com.example.android.tvshows.idlingResource.SimpleIdlingResource;
+import com.example.android.tvshows.ui.myshows.shows.DaggerShowsComponent;
 
 import javax.inject.Inject;
 
@@ -31,9 +32,6 @@ import butterknife.ButterKnife;
 import static android.content.res.Configuration.ORIENTATION_PORTRAIT;
 
 public class ResultsFragment extends Fragment implements ResultsContract.View {
-
-    private final String OUTSTATE_PRESENTER_STATE = "presenter";
-    private final String OUTSTATE_ADAPTER = "adapter";
 
     protected @Inject ResultsContract.Presenter mResultsPresenter;
     protected @Inject ResultsAdapter mResultsAdapter;
@@ -50,6 +48,22 @@ public class ResultsFragment extends Fragment implements ResultsContract.View {
     // The Idling Resource which will be null in production.
     @Nullable private SimpleIdlingResource mIdlingResource;
 
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        ShowsApplication showsApplication = (ShowsApplication) getActivity().getApplication();
+
+        ResultsComponent component = DaggerResultsComponent.builder()
+                .applicationComponent(showsApplication.get(getActivity()).getComponent())
+                .resultsModule(showsApplication.getResultsModule(this, this))
+                .build();
+
+        component.inject(this);
+
+        setRetainInstance(true);
+    }
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -58,28 +72,6 @@ public class ResultsFragment extends Fragment implements ResultsContract.View {
 
         ButterKnife.bind(this,mRootview);
 
-        ShowsApplication showsApplication = (ShowsApplication) getActivity().getApplication();
-
-        if(savedInstanceState!=null){
-            SaveResultsPresenterState saveResultsPresenterState = savedInstanceState.getParcelable(OUTSTATE_PRESENTER_STATE);
-            ResultsAdapter adapter =  savedInstanceState.getParcelable(OUTSTATE_ADAPTER);
-
-            ResultsComponent component = DaggerResultsComponent.builder()
-                    .applicationComponent(showsApplication.get(getActivity()).getComponent())
-                    .resultsModule(showsApplication.getResultsModule(this, this,saveResultsPresenterState,adapter))
-                    .build();
-
-            component.inject(this);
-        }
-        else {
-            ResultsComponent component = DaggerResultsComponent.builder()
-                    .applicationComponent(showsApplication.get(getActivity()).getComponent())
-                    .resultsModule(showsApplication.getResultsModule(this, this))
-                    .build();
-
-            component.inject(this);
-        }
-        setRetainInstance(true);
         setupRecyclerView();
 
         return mRootview;
@@ -209,13 +201,6 @@ public class ResultsFragment extends Fragment implements ResultsContract.View {
 
     public ResultsContract.Presenter getResultsPresenter(){
         return mResultsPresenter;
-    }
-
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        outState.putParcelable(OUTSTATE_PRESENTER_STATE, mResultsPresenter.getSaveResultsPresenterState());
-        outState.putParcelable(OUTSTATE_ADAPTER, mResultsAdapter);
     }
 
     @VisibleForTesting(otherwise = VisibleForTesting.NONE)

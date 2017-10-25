@@ -43,7 +43,6 @@ public interface ResultsContract {
         int getTmdbId(int position);
         void openMoreDetailsDialog(Context context,int position);
         void showAdded();
-        SaveResultsPresenterState getSaveResultsPresenterState();
     }
 
 }

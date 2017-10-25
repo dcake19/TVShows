@@ -12,23 +12,15 @@ import com.example.android.tvshows.service.ServiceModule;
 import com.example.android.tvshows.ui.actor.ActorActivity;
 import com.example.android.tvshows.ui.actor.ActorContract;
 import com.example.android.tvshows.ui.actor.ActorModule;
-import com.example.android.tvshows.ui.actor.ActorPresenter;
 import com.example.android.tvshows.ui.episodes.EpisodesActivity;
 import com.example.android.tvshows.ui.episodes.EpisodesContract;
 import com.example.android.tvshows.ui.episodes.EpisodesModule;
-import com.example.android.tvshows.ui.find.ResultsAdapter;
 import com.example.android.tvshows.ui.find.ResultsContract;
 import com.example.android.tvshows.ui.find.ResultsFragment;
 import com.example.android.tvshows.ui.find.ResultsModule;
-import com.example.android.tvshows.ui.find.SaveResultsPresenterState;
-import com.example.android.tvshows.ui.myshows.current.CurrentAdapter;
 import com.example.android.tvshows.ui.myshows.current.CurrentContract;
 import com.example.android.tvshows.ui.myshows.current.CurrentFragment;
-import com.example.android.tvshows.ui.myshows.current.CurrentInfo;
 import com.example.android.tvshows.ui.myshows.current.CurrentModule;
-import com.example.android.tvshows.ui.myshows.current.ShowDate;
-import com.example.android.tvshows.ui.myshows.shows.ShowInfo;
-import com.example.android.tvshows.ui.myshows.shows.ShowsAdapter;
 import com.example.android.tvshows.ui.myshows.shows.ShowsContract;
 import com.example.android.tvshows.ui.myshows.shows.ShowsFragment;
 import com.example.android.tvshows.ui.myshows.shows.ShowsModule;
@@ -97,10 +89,6 @@ public class ShowsApplication extends Application {
 
     public ResultsModule getResultsModule(ResultsFragment resultsFragment, ResultsContract.View view) {
         return new ResultsModule(resultsFragment,view);
-    }
-
-    public ResultsModule getResultsModule(ResultsFragment resultsFragment, ResultsContract.View view,SaveResultsPresenterState saveResultsPresenterState,ResultsAdapter resultsAdapter) {
-        return new ResultsModule(resultsFragment,view,saveResultsPresenterState,resultsAdapter);
     }
 
     public CurrentModule getCurrentModule(CurrentContract.View view, CurrentFragment currentFragment, int currentType) {

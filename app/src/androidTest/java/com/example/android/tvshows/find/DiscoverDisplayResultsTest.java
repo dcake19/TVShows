@@ -3,6 +3,7 @@ package com.example.android.tvshows.find;
 import android.app.Instrumentation;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.espresso.contrib.RecyclerViewActions;
 import android.support.test.rule.ActivityTestRule;
@@ -87,8 +88,11 @@ public class DiscoverDisplayResultsTest {
 
         testDisplayInitialMethods();
 
-        testScrollAndDisplayMethods();
+        testScrollAndDisplayMethods(true);
 
+        mActivityTestRule.getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+
+        testScrollAndDisplayMethods(false);
     }
 
     private void setMockPresenterMethods(){
@@ -127,17 +131,20 @@ public class DiscoverDisplayResultsTest {
         onView(withRecyclerView(R.id.recyclerview_results).atPositionOnView(15,R.id.button_add)).check(matches(not(isDisplayed())));
     }
 
-    private void testScrollAndDisplayMethods(){
-        onView(withId(R.id.recyclerview_results))
-                .perform(RecyclerViewActions.scrollToPosition(19));
+    private void testScrollAndDisplayMethods(boolean first){
+        if(first) {
+            onView(withId(R.id.recyclerview_results))
+                    .perform(RecyclerViewActions.scrollToPosition(19));
 
-        verify(mMockPresenter).getDiscoverPage(mActivityTestRule.getActivity(),2);
+            verify(mMockPresenter).getDiscoverPage(mActivityTestRule.getActivity(), 2);
 
-        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
-            @Override
-            public void run() {
-                mResultsFragment.setResultsAdapter(40);
-            }});
+            InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+                @Override
+                public void run() {
+                    mResultsFragment.setResultsAdapter(40);
+                }
+            });
+        }
 
         onView(withId(R.id.recyclerview_results))
                 .perform(RecyclerViewActions.scrollToPosition(39));

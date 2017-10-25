@@ -73,34 +73,13 @@ public class ResultsPresenter implements ResultsContract.Presenter {
         mAllShowIds = mShowsRepository.getAllShowIds();
     }
 
-    public ResultsPresenter(@NonNull ResultsContract.View resultsView,ApiService apiService,ShowsRepository showsRepository,SaveResultsPresenterState saveResultsPresenterState){
-        mResultsView = resultsView;
-        mApiService = apiService;
-        mShowsRepository = showsRepository;
-        mAllShowIds = saveResultsPresenterState.getAllShowIds();
-        mResults = saveResultsPresenterState.getResults();
-        mPage = saveResultsPresenterState.getPage();
-        mTotalPages = saveResultsPresenterState.getTotalPages();
-        mTotalResults = saveResultsPresenterState.getTotalResults();
-        mLastSortBy = saveResultsPresenterState.getLastSortBy();
-        mLastWithGenres = saveResultsPresenterState.getLastWithGenres();
-        mLastWithoutGenres = saveResultsPresenterState.getLastWithoutGenres();
-        mLastMinVoteAverage = saveResultsPresenterState.getLastMinVoteAverage();
-        mLastMinVoteCount = saveResultsPresenterState.getLastMinVoteCount();
-        mLastFirstAirDateAfter = saveResultsPresenterState.getLastFirstAirDateAfter();
-        mLastFirstAirDateBefore = saveResultsPresenterState.getLastFirstAirDateBefore();
-    }
-
     @Override
     public void saveSelectedToDatabase(Context context, Integer id) {
-
         mAllShowIds.add(id);
         Intent intent = new Intent(context,DownloadService.class);
         intent.putExtra(DownloadService.DOWNLOAD_TYPE, DownloadService.RESULTS);
         intent.putExtra(DownloadService.TMDB_ID,id);
         context.startService(intent);
-
-        Log.i("Attempting TMDB id",id.toString());
     }
 
     @Override
@@ -335,13 +314,6 @@ public class ResultsPresenter implements ResultsContract.Presenter {
     @Override
     public void showAdded() {
         mResultsView.updateAdapter();
-    }
-
-    @Override
-    public SaveResultsPresenterState getSaveResultsPresenterState() {
-        return new SaveResultsPresenterState(mResults,mPage,mTotalPages,mTotalResults,mLastSortBy,
-                mLastWithGenres,mLastWithoutGenres,mLastMinVoteAverage,mLastMinVoteCount,
-                mLastFirstAirDateAfter,mLastFirstAirDateBefore,mAllShowIds);
     }
 
 }
