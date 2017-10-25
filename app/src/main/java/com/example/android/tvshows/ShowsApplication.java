@@ -55,14 +55,6 @@ import timber.log.Timber;
 
 public class ShowsApplication extends Application {
 
-//    public static ShowsApplication get(Activity activity){
-//        return (ShowsApplication) activity.getApplication();
-//    }
-//
-//    public static ShowsApplication get(Service service){
-//        return (ShowsApplication) service.getApplication();
-//    }
-
     ApplicationComponent mComponent;
 
     @Override
@@ -115,18 +107,8 @@ public class ShowsApplication extends Application {
         return new CurrentModule(view,currentFragment,currentType);
     }
 
-    public CurrentModule getCurrentModule(CurrentContract.View view, CurrentFragment currentFragment, int currentType,
-                                          ArrayList<CurrentInfo> currentInfo, ArrayList<ShowDate> dates, CurrentAdapter adapter) {
-        return new CurrentModule(view,currentFragment,currentType,currentInfo,dates,adapter);
-    }
-
     public ShowsModule getShowsModule(ShowsFragment showsFragment, ShowsContract.View view) {
         return new ShowsModule(showsFragment,view);
-    }
-
-    public ShowsModule getShowsModule(ShowsFragment showsFragment, ShowsContract.View view,
-                                      ArrayList<ShowInfo> showsInfo, ShowsAdapter showsAdapter) {
-        return new ShowsModule(showsFragment,view,showsInfo,showsAdapter);
     }
 
     public CastModule getCastModule(CastFragment castFragment, CastContract.View view, int tmdbId) {

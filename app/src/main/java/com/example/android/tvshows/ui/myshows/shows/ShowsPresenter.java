@@ -32,18 +32,11 @@ public class ShowsPresenter implements ShowsContract.Presenter {
     private BroadcastReceiver mBroadcastReceiver;
     private boolean mContinuing = false;
     private boolean mFavorite = false;
+    private boolean mSubscribed,mComplete;
 
     public ShowsPresenter(ShowsContract.View showsView,ShowsRepository showsRepository){
         mShowsView = showsView;
         mShowsRepository = showsRepository;
-        setBroadcastReceiver();
-        registerReceivers();
-    }
-
-    public ShowsPresenter(ShowsContract.View showsView,ShowsRepository showsRepository,ArrayList<ShowInfo> showsInfo){
-        mShowsView = showsView;
-        mShowsRepository = showsRepository;
-        mShowsInfo = showsInfo;
         setBroadcastReceiver();
         registerReceivers();
     }
@@ -72,21 +65,30 @@ public class ShowsPresenter implements ShowsContract.Presenter {
 
     @Override
     public void loadShowsFromDatabase(final Context context, final boolean continuing, final boolean favorite) {
-        Observable<ArrayList<ShowInfo>> observable = Observable.create(new ObservableOnSubscribe<ArrayList<ShowInfo>>() {
-            @Override
-            public void subscribe(ObservableEmitter<ArrayList<ShowInfo>> e) throws Exception {
-                e.onNext(mShowsRepository.getAllShows(continuing,favorite));
-            }
-        });
+        if(!mSubscribed) {
+            Observable<ArrayList<ShowInfo>> observable = Observable.create(new ObservableOnSubscribe<ArrayList<ShowInfo>>() {
+                @Override
+                public void subscribe(ObservableEmitter<ArrayList<ShowInfo>> e) throws Exception {
+                    mSubscribed = true;
+                    e.onNext(mShowsRepository.getAllShows(continuing, favorite));
+                }
+            });
 
-        Consumer<ArrayList<ShowInfo>> consumer = new Consumer<ArrayList<ShowInfo>>() {
-            @Override
-            public void accept(@NonNull ArrayList<ShowInfo> showsInfo) throws Exception {
-                mShowsInfo = showsInfo;
-                mShowsView.showsDataLoaded(showsInfo.size());
-            }
-        };
-        observable.subscribeOn(Schedulers.newThread()).observeOn(AndroidSchedulers.mainThread()).subscribe(consumer);
+            Consumer<ArrayList<ShowInfo>> consumer = new Consumer<ArrayList<ShowInfo>>() {
+                @Override
+                public void accept(@NonNull ArrayList<ShowInfo> showsInfo) throws Exception {
+                    mShowsInfo = showsInfo;
+                    mShowsView.showsDataLoaded(mShowsInfo.size());
+                    mComplete = true;
+                }
+            };
+            observable.subscribeOn(Schedulers.newThread())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(consumer);
+        }
+        else if(mComplete){
+            mShowsView.showsDataLoaded(mShowsInfo.size());
+        }
     }
 
     @Override

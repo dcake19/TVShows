@@ -15,6 +15,7 @@ import com.example.android.tvshows.R;
 import com.example.android.tvshows.ShowsApplication;
 import com.example.android.tvshows.data.db.ShowsRepository;
 import com.example.android.tvshows.ui.myshows.MyShowsActivity;
+import com.example.android.tvshows.ui.myshows.shows.DaggerShowsComponent;
 import com.example.android.tvshows.ui.myshows.shows.ShowsFragment;
 import com.squareup.picasso.Picasso;
 
@@ -35,50 +36,32 @@ public class CurrentFragment extends Fragment implements CurrentContract.View{
         return currentFragment;
     }
 
-    private final String OUTSTATE_CURRENT_INFO = "current_info";
-    private final String OUTSTATE_DATES = "dates";
-    private final String OUTSTATE_ADAPTER = "adapter";
-
     @BindView(R.id.recyclerview_current) RecyclerView mRecyclerView;
 
     @Inject CurrentAdapter mCurrentAdapter;
     @Inject CurrentContract.Presenter mCurrentPresenter;
 
-    private boolean mLoaded;
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        ShowsApplication showsApplication = (ShowsApplication) getActivity().getApplication();
+
+        CurrentComponent component = DaggerCurrentComponent.builder()
+                .applicationComponent(showsApplication.get(getActivity()).getComponent())
+                .currentModule(showsApplication.getCurrentModule(this, this, mCurrentType))
+                .build();
+
+        component.inject(this);
+
+        setRetainInstance(true);
+    }
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View layout = inflater.inflate(R.layout.myshows_current_fragment,container,false);
         ButterKnife.bind(this,layout);
-
-        ShowsApplication showsApplication = (ShowsApplication) getActivity().getApplication();
-
-        if(savedInstanceState!=null){
-
-            ArrayList<CurrentInfo> currentInfo = savedInstanceState.getParcelableArrayList(OUTSTATE_CURRENT_INFO);
-            ArrayList<ShowDate> dates = savedInstanceState.getParcelableArrayList(OUTSTATE_DATES);
-            CurrentAdapter adapter = savedInstanceState.getParcelable(OUTSTATE_ADAPTER);
-
-            CurrentComponent component = DaggerCurrentComponent.builder()
-                    .applicationComponent(showsApplication.get(getActivity()).getComponent())
-                    .currentModule(showsApplication.getCurrentModule(this, this, mCurrentType,currentInfo,dates,adapter))
-                    .build();
-
-            component.inject(this);
-
-            mLoaded = true;
-        }
-        else {
-            CurrentComponent component = DaggerCurrentComponent.builder()
-                    .applicationComponent(showsApplication.get(getActivity()).getComponent())
-                    .currentModule(showsApplication.getCurrentModule(this, this, mCurrentType))
-                    .build();
-
-            component.inject(this);
-
-            mLoaded = false;
-        }
 
         mRecyclerView.setAdapter(mCurrentAdapter);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
@@ -87,25 +70,15 @@ public class CurrentFragment extends Fragment implements CurrentContract.View{
     }
 
 
-
     @Override
     public void onStart() {
         super.onStart();
-        if(!mLoaded) mCurrentPresenter.loadShowsFromDatabase(getActivity());
+        mCurrentPresenter.loadShowsFromDatabase(getActivity());
     }
 
     @Override
     public void showsDataLoaded(int size) {
         mCurrentAdapter.displayShows(size);
-    }
-
-
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        outState.putParcelableArrayList(OUTSTATE_DATES,mCurrentPresenter.getDates());
-        outState.putParcelableArrayList(OUTSTATE_CURRENT_INFO,mCurrentPresenter.getCurrentInfo());
-        outState.putParcelable(OUTSTATE_ADAPTER,mCurrentAdapter);
     }
 
     @Override

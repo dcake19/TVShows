@@ -1,6 +1,7 @@
 package com.example.android.tvshows.myshows;
 
 import android.app.Activity;
+import android.content.pm.ActivityInfo;
 import android.support.test.espresso.Espresso;
 import android.support.test.espresso.IdlingResource;
 import android.support.test.espresso.contrib.RecyclerViewActions;
@@ -130,7 +131,7 @@ public class MyShowsTests {
 
         mockShowPresenterMethods();
 
-        testDisplayMyShows(showsFragment);
+        testDisplayMyShows(showsFragment,1);
 
         onView(withId(R.id.recyclerview_shows))
                 .perform(RecyclerViewActions.scrollToPosition(0));
@@ -149,6 +150,10 @@ public class MyShowsTests {
 
         onView(withId(R.id.btn_filter)).check(matches(isDisplayed()));
 
+        mActivityTestRule.getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+
+        testDisplayMyShows(showsFragment,2);
+
     }
 
     private void mockShowPresenterMethods(){
@@ -160,7 +165,7 @@ public class MyShowsTests {
                     .thenReturn("1"+i+" Episodes");
             when(mMockShowsPresenter.getNumberOfSeasons(mContext,i))
                     .thenReturn("1"+i+" Seasons");
-            boolean favorite = i%3==0 ? true:false;
+            boolean favorite = i%3==0;
             when(mMockShowsPresenter.isFavorite(i)).thenReturn(favorite);
         }
     }
@@ -181,7 +186,7 @@ public class MyShowsTests {
         when(mMockCurrentPresenter.getShowOverview(1,0)).thenReturn("Episode Description 3");
     }
 
-    private void testDisplayMyShows(final ShowsFragment showsFragment){
+    private void testDisplayMyShows(final ShowsFragment showsFragment,int times){
         InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
             @Override
             public void run() {
@@ -203,11 +208,13 @@ public class MyShowsTests {
 
             boolean favorite = i%3==0;
 
-            onView(withId(R.id.recyclerview_shows))
-                    .perform(RecyclerViewActions.actionOnItemAtPosition(i, clickChildViewWithId(R.id.favorite)));
+            if(times==1) {
+                onView(withId(R.id.recyclerview_shows))
+                        .perform(RecyclerViewActions
+                                .actionOnItemAtPosition(i, clickChildViewWithId(R.id.favorite)));
 
-            verify(mMockShowsPresenter).setFavorite(i,!favorite);
-
+                verify(mMockShowsPresenter).setFavorite(i, !favorite);
+            }
 
             when(mMockShowsPresenter.getIntentForShowInfoActivity(mContext,i))
                     .thenReturn(new Intent(mActivity.getBaseContext(), ShowInfoActivity.class));
@@ -217,7 +224,7 @@ public class MyShowsTests {
             onView(withId(R.id.recyclerview_shows))
                     .perform(RecyclerViewActions.actionOnItemAtPosition(i, clickChildViewWithId(R.id.show_layout)));
 
-            intended(hasComponent(ShowInfoActivity.class.getName()),times(i+1));
+            intended(hasComponent(ShowInfoActivity.class.getName()),times(i+1+(times-1)*6));
         }
     }
 

@@ -43,21 +43,12 @@ public class CurrentPresenter implements CurrentContract.Presenter{
             loadShowsFromDatabase(context);
         }
     };
+    private boolean mSubscribed,mComplete;
 
     public CurrentPresenter(CurrentContract.View currentView,ShowsRepository showsRepository,int currentType){
         mCurrentView = currentView;
         mShowsRepository = showsRepository;
         mCurrentType = currentType;
-        registerReceivers();
-    }
-
-    public CurrentPresenter(CurrentContract.View currentView,ShowsRepository showsRepository,int currentType,
-                            ArrayList<CurrentInfo> current, ArrayList<ShowDate> dates){
-        mCurrentView = currentView;
-        mShowsRepository = showsRepository;
-        mCurrentType = currentType;
-        mCurrent = current;
-        mDates = dates;
         registerReceivers();
     }
 
@@ -71,29 +62,33 @@ public class CurrentPresenter implements CurrentContract.Presenter{
     @Override
     public void loadShowsFromDatabase(final Context context) {
 
-        Observable<ArrayList<CurrentDatabaseLoad>> observable = Observable.create(new ObservableOnSubscribe<ArrayList<CurrentDatabaseLoad>>() {
-            @Override
-            public void subscribe(ObservableEmitter<ArrayList<CurrentDatabaseLoad>> e) throws Exception {
-                if(mCurrentType == UPCOMING){
-                    e.onNext(mShowsRepository.getEpisodesNextMonth());
+        if(!mSubscribed) {
+            Observable<ArrayList<CurrentDatabaseLoad>> observable = Observable.create(new ObservableOnSubscribe<ArrayList<CurrentDatabaseLoad>>() {
+                @Override
+                public void subscribe(ObservableEmitter<ArrayList<CurrentDatabaseLoad>> e) throws Exception {
+                    mSubscribed = true;
+                    if (mCurrentType == UPCOMING) {
+                        e.onNext(mShowsRepository.getEpisodesNextMonth());
+                    } else {
+                        e.onNext(mShowsRepository.getEpisodesLastMonth());
+                    }
                 }
-                else{
-                    e.onNext(mShowsRepository.getEpisodesLastMonth());
+            });
+
+            Consumer<ArrayList<CurrentDatabaseLoad>> consumer = new Consumer<ArrayList<CurrentDatabaseLoad>>() {
+                @Override
+                public void accept(@NonNull ArrayList<CurrentDatabaseLoad> episodeData) throws Exception {
+                    setCurrent(episodeData, context);
+                    setDates(episodeData);
+                    mComplete = true;
                 }
-            }
-        });
+            };
 
-        Consumer<ArrayList<CurrentDatabaseLoad>> consumer = new Consumer<ArrayList<CurrentDatabaseLoad>>() {
-            @Override
-            public void accept(@NonNull ArrayList<CurrentDatabaseLoad> episodeData) throws Exception {
-
-                setCurrent(episodeData,context);
-                setDates(episodeData);
-            }
-        };
-
-        observable.subscribeOn(Schedulers.newThread()).observeOn(AndroidSchedulers.mainThread()).subscribe(consumer);
-
+            observable.subscribeOn(Schedulers.newThread()).observeOn(AndroidSchedulers.mainThread()).subscribe(consumer);
+        }
+        else if(mComplete){
+            mCurrentView.showsDataLoaded(mDates.size());
+        }
     }
 
     public void setCurrent(ArrayList<CurrentDatabaseLoad> currentDatabaseLoad,Context context){
@@ -123,7 +118,6 @@ public class CurrentPresenter implements CurrentContract.Presenter{
                 mDates.get(mDates.size()-1).addShow();
             }
         }
-
 
         mCurrentView.showsDataLoaded(mDates.size());
     }
