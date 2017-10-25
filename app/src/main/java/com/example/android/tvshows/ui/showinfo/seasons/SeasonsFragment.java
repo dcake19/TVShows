@@ -12,6 +12,7 @@ import android.view.ViewGroup;
 import com.example.android.tvshows.R;
 import com.example.android.tvshows.ShowsApplication;
 import com.example.android.tvshows.data.db.ShowsRepository;
+import com.example.android.tvshows.ui.myshows.shows.DaggerShowsComponent;
 import com.example.android.tvshows.ui.myshows.shows.ShowsAdapter;
 import com.squareup.picasso.Picasso;
 
@@ -23,10 +24,6 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 
 public class SeasonsFragment extends Fragment implements SeasonsContract.View{
-
-    private final String OUTSTATE_SEASONS_INFO = "season_info";
-    private final String OUTSTATE_ADAPTER = "adapter";
-    private final String OUTSTATE_TMDB_ID = "tmdb_id";
 
     private static int mTmdbId;
 
@@ -40,7 +37,21 @@ public class SeasonsFragment extends Fragment implements SeasonsContract.View{
 
     @BindView(R.id.recyclerview_seasons) RecyclerView mRecyclerView;
 
-    private boolean mLoaded;
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        ShowsApplication showsApplication = (ShowsApplication) getActivity().getApplication();
+
+        SeasonsComponent component = DaggerSeasonsComponent.builder()
+                .applicationComponent(showsApplication.get(getActivity()).getComponent())
+                .seasonsModule(showsApplication.getSeasonsModule(this, this, mTmdbId))
+                .build();
+
+        component.inject(this);
+
+        setRetainInstance(true);
+    }
 
     @Nullable
     @Override
@@ -48,30 +59,6 @@ public class SeasonsFragment extends Fragment implements SeasonsContract.View{
         View rootview = inflater.inflate(R.layout.show_info_seasons_fragment,container,false);
         ButterKnife.bind(this,rootview);
 
-        ShowsApplication showsApplication = (ShowsApplication) getActivity().getApplication();
-
-        if(savedInstanceState!=null){
-            ArrayList<SeasonInfo> seasonsInfo = savedInstanceState.getParcelableArrayList(OUTSTATE_SEASONS_INFO);
-            SeasonsAdapter adapter =  savedInstanceState.getParcelable(OUTSTATE_ADAPTER);
-            mLoaded = true;
-            SeasonsComponent component = DaggerSeasonsComponent.builder()
-                    .applicationComponent(showsApplication.get(getActivity()).getComponent())
-                    .seasonsModule(showsApplication.getSeasonsModule(this, this, mTmdbId,seasonsInfo,adapter))
-                    .build();
-
-            component.inject(this);
-        }
-        else {
-
-            mLoaded = false;
-
-            SeasonsComponent component = DaggerSeasonsComponent.builder()
-                    .applicationComponent(showsApplication.get(getActivity()).getComponent())
-                    .seasonsModule(showsApplication.getSeasonsModule(this, this, mTmdbId))
-                    .build();
-
-            component.inject(this);
-       }
         setupRecyclerView();
 
         return rootview;
@@ -80,7 +67,7 @@ public class SeasonsFragment extends Fragment implements SeasonsContract.View{
     @Override
     public void onStart() {
         super.onStart();
-        if(!mLoaded) mSeasonsPresenter.loadSeasonsData(getActivity());
+        mSeasonsPresenter.loadSeasonsData(getActivity());
     }
 
     private void setupRecyclerView(){
@@ -95,15 +82,5 @@ public class SeasonsFragment extends Fragment implements SeasonsContract.View{
         mSeasonsAdapter.displaySeasons(size);
     }
 
-
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-
-        super.onSaveInstanceState(outState);
-        outState.putParcelable(OUTSTATE_ADAPTER, mSeasonsAdapter);
-        outState.putParcelableArrayList(OUTSTATE_SEASONS_INFO, mSeasonsPresenter.getSeasonsInfo());
-        outState.putInt(OUTSTATE_TMDB_ID, mTmdbId);
-
-    }
 
 }

@@ -20,7 +20,7 @@ import com.squareup.picasso.Picasso;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class CastAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> implements Parcelable {
+public class CastAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     Context mContext;
     CastContract.Presenter mCastPresenter;
@@ -28,12 +28,6 @@ public class CastAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
     int mSize = 0;
 
     public CastAdapter(Context context, CastContract.Presenter castPresenter, Picasso picasso){
-        mContext = context;
-        mCastPresenter = castPresenter;
-        mPicasso = picasso;
-    }
-
-    public void setVariables(Context context, CastContract.Presenter castPresenter, Picasso picasso){
         mContext = context;
         mCastPresenter = castPresenter;
         mPicasso = picasso;
@@ -64,7 +58,6 @@ public class CastAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
         notifyDataSetChanged();
     }
 
-
     class ViewHolderCast extends RecyclerView.ViewHolder implements View.OnClickListener{
 
         @BindView(R.id.character_name) TextView characterName;
@@ -83,33 +76,6 @@ public class CastAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
             mContext.startActivity(mCastPresenter.getIntentForActorActivity(mContext,getAdapterPosition()));
         }
     }
-
-    protected CastAdapter(Parcel in) {
-        mSize = in.readInt();
-    }
-
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeInt(mSize);
-    }
-
-    @SuppressWarnings("unused")
-    public static final Parcelable.Creator<CastAdapter> CREATOR = new Parcelable.Creator<CastAdapter>() {
-        @Override
-        public CastAdapter createFromParcel(Parcel in) {
-            return new CastAdapter(in);
-        }
-
-        @Override
-        public CastAdapter[] newArray(int size) {
-            return new CastAdapter[size];
-        }
-    };
 
 
 }

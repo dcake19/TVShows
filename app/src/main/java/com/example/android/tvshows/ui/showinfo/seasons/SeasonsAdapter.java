@@ -17,7 +17,7 @@ import com.squareup.picasso.Picasso;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class SeasonsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> implements Parcelable {
+public class SeasonsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
 
     Context mContext;
     SeasonsContract.Presenter mSeasonsPresenter;
@@ -25,12 +25,6 @@ public class SeasonsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     int mSize = 0;
 
     public SeasonsAdapter(Context context, SeasonsContract.Presenter seasonsPresenter, Picasso picasso){
-        mContext = context;
-        mSeasonsPresenter = seasonsPresenter;
-        mPicasso = picasso;
-    }
-
-    public void setVariables(Context context, SeasonsContract.Presenter seasonsPresenter, Picasso picasso){
         mContext = context;
         mSeasonsPresenter = seasonsPresenter;
         mPicasso = picasso;
@@ -84,32 +78,5 @@ public class SeasonsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         }
     }
 
-
-    protected SeasonsAdapter(Parcel in) {
-        mSize = in.readInt();
-    }
-
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags){
-        dest.writeInt(mSize);
-    }
-
-    @SuppressWarnings("unused")
-    public static final Parcelable.Creator<SeasonsAdapter> CREATOR = new Parcelable.Creator<SeasonsAdapter>() {
-        @Override
-        public SeasonsAdapter createFromParcel(Parcel in) {
-            return new SeasonsAdapter(in);
-        }
-
-        @Override
-        public SeasonsAdapter[] newArray(int size) {
-            return new SeasonsAdapter[size];
-        }
-    };
 
 }

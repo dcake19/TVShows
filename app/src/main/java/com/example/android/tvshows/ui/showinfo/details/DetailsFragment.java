@@ -15,6 +15,7 @@ import android.widget.TextView;
 import com.example.android.tvshows.R;
 import com.example.android.tvshows.ShowsApplication;
 import com.example.android.tvshows.data.db.ShowsRepository;
+import com.example.android.tvshows.ui.myshows.shows.DaggerShowsComponent;
 import com.example.android.tvshows.util.ExternalLinks;
 import com.squareup.picasso.Picasso;
 
@@ -45,11 +46,10 @@ public class DetailsFragment extends Fragment implements DetailsContract.View {
     @BindView(R.id.genres) TextView mGenres;
     @BindView(R.id.recyclerview_creator)RecyclerView mRecyclerView;
 
-    @Nullable
+
     @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View rootview = inflater.inflate(R.layout.show_info_details_fragment,container,false);
-        ButterKnife.bind(this,rootview);
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
 
         ShowsApplication showsApplication = (ShowsApplication) getActivity().getApplication();
 
@@ -59,6 +59,15 @@ public class DetailsFragment extends Fragment implements DetailsContract.View {
                 .build();
 
         component.inject(this);
+
+        setRetainInstance(true);
+    }
+
+    @Nullable
+    @Override
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        View rootview = inflater.inflate(R.layout.show_info_details_fragment,container,false);
+        ButterKnife.bind(this,rootview);
 
         setupRecyclerView();
 

@@ -28,6 +28,7 @@ public class SeasonsPresenter implements SeasonsContract.Presenter{
     private ShowsRepository mShowsRepository;
     private int tmdbId;
     private ArrayList<SeasonInfo> mSeasonsInfo;
+    private boolean mSubscribed,mComplete;
 
     public SeasonsPresenter(SeasonsContract.View seasonsView,ShowsRepository showsRepository,int tmdbId){
         mSeasonsView = seasonsView;
@@ -35,29 +36,29 @@ public class SeasonsPresenter implements SeasonsContract.Presenter{
         this.tmdbId = tmdbId;
     }
 
-    public SeasonsPresenter(SeasonsContract.View seasonsView,ShowsRepository showsRepository,int tmdbId,ArrayList<SeasonInfo> seasonsInfo){
-        mSeasonsView = seasonsView;
-        mShowsRepository = showsRepository;
-        this.tmdbId = tmdbId;
-        mSeasonsInfo = seasonsInfo;
-    }
-
     @Override
     public void loadSeasonsData(final Context context) {
-        Observable<ArrayList<SeasonInfo>> observable = Observable.create(new ObservableOnSubscribe<ArrayList<SeasonInfo>>() {
-            @Override
-            public void subscribe(ObservableEmitter<ArrayList<SeasonInfo>> e) throws Exception {
-                e.onNext(mShowsRepository.getSeasons(tmdbId));
-            }
-        });
-        Consumer<ArrayList<SeasonInfo>> consumer = new Consumer<ArrayList<SeasonInfo>>() {
-            @Override
-            public void accept(@NonNull ArrayList<SeasonInfo> seasonsInfo) throws Exception {
-                mSeasonsInfo = seasonsInfo;
-                mSeasonsView.seasonDataLoaded(mSeasonsInfo.size());
-            }
-        };
-        observable.subscribeOn(Schedulers.newThread()).observeOn(AndroidSchedulers.mainThread()).subscribe(consumer);
+        if(!mSubscribed) {
+            Observable<ArrayList<SeasonInfo>> observable = Observable.create(new ObservableOnSubscribe<ArrayList<SeasonInfo>>() {
+                @Override
+                public void subscribe(ObservableEmitter<ArrayList<SeasonInfo>> e) throws Exception {
+                    mSubscribed = true;
+                    e.onNext(mShowsRepository.getSeasons(tmdbId));
+                }
+            });
+            Consumer<ArrayList<SeasonInfo>> consumer = new Consumer<ArrayList<SeasonInfo>>() {
+                @Override
+                public void accept(@NonNull ArrayList<SeasonInfo> seasonsInfo) throws Exception {
+                    mSeasonsInfo = seasonsInfo;
+                    mSeasonsView.seasonDataLoaded(mSeasonsInfo.size());
+                    mComplete = true;
+                }
+            };
+            observable.subscribeOn(Schedulers.newThread()).observeOn(AndroidSchedulers.mainThread()).subscribe(consumer);
+        }
+        else if(mComplete){
+            mSeasonsView.seasonDataLoaded(mSeasonsInfo.size());
+        }
     }
 
     @Override
@@ -103,12 +104,6 @@ public class SeasonsPresenter implements SeasonsContract.Presenter{
 
         return EpisodesActivity.getIntent(context,tmdbId,seasonsName,seasonNumbers,adapterPosition);
     }
-
-    @Override
-    public ArrayList<SeasonInfo> getSeasonsInfo() {
-        return mSeasonsInfo;
-    }
-
 
 }
 

@@ -35,6 +35,7 @@ public class DetailsPresenter implements DetailsContract.Presenter{
     private ArrayList<String> mCreators;
     private ApiService mApiService;
     private ExternalIdsTvShow mExternalIdsTvShow;
+    private boolean mSubscribed,mComplete;
 
     public DetailsPresenter(DetailsContract.View detailsView,ShowsRepository showsRepository,
                             ApiService apiService,int tmdbId){
@@ -46,21 +47,27 @@ public class DetailsPresenter implements DetailsContract.Presenter{
 
     @Override
     public void loadShowDetails(final Context context) {
-        Observable<DetailsData> showDetailsObservable = Observable.create(new ObservableOnSubscribe<DetailsData>() {
-            @Override
-            public void subscribe(ObservableEmitter<DetailsData> e) throws Exception {
-                e.onNext(mShowsRepository.getShow(tmdbId));
-            }
-        });
-        Consumer<DetailsData> showDetailsConsumer = new Consumer<DetailsData>() {
-            @Override
-            public void accept(@io.reactivex.annotations.NonNull DetailsData detailsData) throws Exception {
-                mShowDetails = detailsData;
-                loadCreators(context);
-            }
-        };
-        showDetailsObservable.subscribeOn(Schedulers.newThread())
-                .observeOn(AndroidSchedulers.mainThread()).subscribe(showDetailsConsumer);
+        if(!mSubscribed) {
+            Observable<DetailsData> showDetailsObservable = Observable.create(new ObservableOnSubscribe<DetailsData>() {
+                @Override
+                public void subscribe(ObservableEmitter<DetailsData> e) throws Exception {
+                    mSubscribed = true;
+                    e.onNext(mShowsRepository.getShow(tmdbId));
+                }
+            });
+            Consumer<DetailsData> showDetailsConsumer = new Consumer<DetailsData>() {
+                @Override
+                public void accept(@io.reactivex.annotations.NonNull DetailsData detailsData) throws Exception {
+                    mShowDetails = detailsData;
+                    loadCreators(context);
+                }
+            };
+            showDetailsObservable.subscribeOn(Schedulers.newThread())
+                    .observeOn(AndroidSchedulers.mainThread()).subscribe(showDetailsConsumer);
+        }
+        else if(mComplete){
+            setDetailsView(context);
+        }
     }
 
     private void loadCreators(final Context context){
@@ -77,6 +84,7 @@ public class DetailsPresenter implements DetailsContract.Presenter{
             public void accept(@io.reactivex.annotations.NonNull ArrayList<String> creators) throws Exception {
                 mCreators = creators;
                 setDetailsView(context);
+                mComplete = true;
             }
         };
 

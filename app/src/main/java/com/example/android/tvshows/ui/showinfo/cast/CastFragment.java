@@ -14,6 +14,7 @@ import com.example.android.tvshows.ShowsApplication;
 import com.example.android.tvshows.data.db.ShowsRepository;
 
 
+import com.example.android.tvshows.ui.myshows.shows.DaggerShowsComponent;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -25,9 +26,6 @@ import butterknife.ButterKnife;
 
 
 public class CastFragment extends Fragment implements CastContract.View{
-
-    private final String OUTSTATE_CAST_INFO = "cast_info";
-    private final String OUTSTATE_ADAPTER = "adapter";
 
     private static int mTmdbId;
 
@@ -41,7 +39,21 @@ public class CastFragment extends Fragment implements CastContract.View{
     @Inject CastAdapter mCastAdapter;
     @Inject CastContract.Presenter mCastPresenter;
 
-    private boolean mLoaded;
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        ShowsApplication showsApplication = (ShowsApplication) getActivity().getApplication();
+
+        CastComponent component = DaggerCastComponent.builder()
+                .applicationComponent(showsApplication.get(getActivity()).getComponent())
+                .castModule(showsApplication.getCastModule(this, this, mTmdbId))
+                .build();
+
+        component.inject(this);
+
+        setRetainInstance(true);
+    }
 
     @Nullable
     @Override
@@ -49,31 +61,6 @@ public class CastFragment extends Fragment implements CastContract.View{
         View rootview = inflater.inflate(R.layout.show_info_cast_fragment,container,false);
         ButterKnife.bind(this,rootview);
 
-        ShowsApplication showsApplication = (ShowsApplication) getActivity().getApplication();
-
-        if(savedInstanceState!=null){
-            ArrayList<CastInfo> castInfo = savedInstanceState.getParcelableArrayList(OUTSTATE_CAST_INFO);
-            CastAdapter adapter =  savedInstanceState.getParcelable(OUTSTATE_ADAPTER);
-
-            CastComponent component = DaggerCastComponent.builder()
-                    .applicationComponent(showsApplication.get(getActivity()).getComponent())
-                    .castModule(showsApplication.getCastModule(this, this, mTmdbId,castInfo,adapter))
-                    .build();
-
-            component.inject(this);
-
-            mLoaded = true;
-        }
-        else {
-            mLoaded = false;
-
-            CastComponent component = DaggerCastComponent.builder()
-                    .applicationComponent(showsApplication.get(getActivity()).getComponent())
-                    .castModule(showsApplication.getCastModule(this, this, mTmdbId))
-                    .build();
-
-            component.inject(this);
-        }
         setupRecyclerView();
 
         return rootview;
@@ -82,7 +69,7 @@ public class CastFragment extends Fragment implements CastContract.View{
     @Override
     public void onStart() {
         super.onStart();
-        if(!mLoaded) mCastPresenter.loadCastData(getActivity());
+        mCastPresenter.loadCastData(getActivity());
     }
 
     private void setupRecyclerView(){
@@ -96,12 +83,4 @@ public class CastFragment extends Fragment implements CastContract.View{
         mCastAdapter.displayCast(size);
     }
 
-
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        outState.putParcelableArrayList(OUTSTATE_CAST_INFO, mCastPresenter.getCastInfo());
-        outState.putParcelable(OUTSTATE_ADAPTER, mCastAdapter);
-
-    }
 }

@@ -19,8 +19,6 @@ public interface SeasonsContract {
         String getAirDate(int adapterPosition);
         String getOverview(int adapterPosition);
         String getNumberOfEpisodes(int adapterPosition,Context context);
-       // void startEpisodesActivity(Context context,int adapterPosition);
         Intent getIntentForEpisodesActivity(Context context,int adapterPosition);
-        ArrayList<SeasonInfo> getSeasonsInfo();
     }
 }

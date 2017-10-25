@@ -103,10 +103,10 @@ public class ShowsApplication extends Application {
         return new CastModule(castFragment,view,tmdbId);
     }
 
-    public CastModule getCastModule(CastFragment castFragment, CastContract.View view, int tmdbId,
-                                    ArrayList<CastInfo> castInfo, CastAdapter castAdapter) {
-        return new CastModule(castFragment,view,tmdbId,castInfo,castAdapter);
-    }
+//    public CastModule getCastModule(CastFragment castFragment, CastContract.View view, int tmdbId,
+//                                    ArrayList<CastInfo> castInfo, CastAdapter castAdapter) {
+//        return new CastModule(castFragment,view,tmdbId,castInfo,castAdapter);
+//    }
 
     public DetailsModule getDetailsModule(DetailsFragment detailsFragment, DetailsContract.View view, int tmdbId) {
         return new DetailsModule(detailsFragment, view, tmdbId);
@@ -116,10 +116,10 @@ public class ShowsApplication extends Application {
         return new SeasonsModule(seasonsFragment,view,tmdbId);
     }
 
-    public SeasonsModule getSeasonsModule(SeasonsFragment seasonsFragment, SeasonsContract.View view, int tmdbId,
-    ArrayList<SeasonInfo> seasonsInfo,SeasonsAdapter seasonsAdapter){
-        return new SeasonsModule(seasonsFragment,view,tmdbId,seasonsInfo,seasonsAdapter);
-    }
+//    public SeasonsModule getSeasonsModule(SeasonsFragment seasonsFragment, SeasonsContract.View view, int tmdbId,
+//    ArrayList<SeasonInfo> seasonsInfo,SeasonsAdapter seasonsAdapter){
+//        return new SeasonsModule(seasonsFragment,view,tmdbId,seasonsInfo,seasonsAdapter);
+//    }
 
     public UpdatesModule getUpdatesModule(UpdatesFragment updatesFragment, UpdatesContract.View view){
         return new UpdatesModule(updatesFragment, view);

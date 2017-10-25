@@ -18,6 +18,5 @@ public interface CastContract {
         String getActorName(int position);
         String getPhotoUrl(Context context, int position);
         Intent getIntentForActorActivity(Context context,int position);
-        ArrayList<CastInfo> getCastInfo();
     }
 }

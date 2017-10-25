@@ -27,6 +27,7 @@ public class CastPresenter implements CastContract.Presenter {
     private ShowsRepository mShowsRepository;
     private int tmdbId;
     private ArrayList<CastInfo> mCastInfo;
+    private boolean mSubscribed,mComplete;
 
     public CastPresenter(CastContract.View castView,ShowsRepository showsRepository,int tmdbId){
         mCastView = castView;
@@ -34,32 +35,32 @@ public class CastPresenter implements CastContract.Presenter {
         this.tmdbId = tmdbId;
     }
 
-    public CastPresenter(CastContract.View castView,ShowsRepository showsRepository,int tmdbId,ArrayList<CastInfo> castInfo){
-        mCastView = castView;
-        mShowsRepository = showsRepository;
-        this.tmdbId = tmdbId;
-        mCastInfo = castInfo;
-    }
-
     @Override
     public void loadCastData(final Context context) {
+        if(!mSubscribed) {
+            Observable<ArrayList<CastInfo>> observable = Observable.create(new ObservableOnSubscribe<ArrayList<CastInfo>>() {
+                @Override
+                public void subscribe(ObservableEmitter<ArrayList<CastInfo>> e) throws Exception {
+                    mSubscribed = true;
+                    e.onNext(mShowsRepository.getCast(tmdbId));
+                }
+            });
 
-        Observable<ArrayList<CastInfo>> observable = Observable.create(new ObservableOnSubscribe<ArrayList<CastInfo>>() {
-            @Override
-            public void subscribe(ObservableEmitter<ArrayList<CastInfo>> e) throws Exception {
-                e.onNext(mShowsRepository.getCast(tmdbId));
-            }
-        });
+            Consumer<ArrayList<CastInfo>> consumer = new Consumer<ArrayList<CastInfo>>() {
+                @Override
+                public void accept(@NonNull ArrayList<CastInfo> castInfo) throws Exception {
+                    mCastInfo = castInfo;
+                    mCastView.castDataLoaded(mCastInfo.size());
+                    mComplete = true;
+                }
+            };
 
-        Consumer<ArrayList<CastInfo>> consumer = new Consumer<ArrayList<CastInfo>>() {
-            @Override
-            public void accept(@NonNull ArrayList<CastInfo> castInfo) throws Exception {
-                mCastInfo = castInfo;
-                mCastView.castDataLoaded(mCastInfo.size());
-            }
-        };
-
-        observable.subscribeOn(Schedulers.newThread()).observeOn(AndroidSchedulers.mainThread()).subscribe(consumer);
+            observable.subscribeOn(Schedulers.newThread())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(consumer);
+        }else if(mComplete){
+            mCastView.castDataLoaded(mCastInfo.size());
+        }
     }
 
     @Override
@@ -80,11 +81,6 @@ public class CastPresenter implements CastContract.Presenter {
     @Override
     public Intent getIntentForActorActivity(Context context, int position) {
         return ActorActivity.getIntent(context,mCastInfo.get(position).getPersonId());
-    }
-
-    @Override
-    public ArrayList<CastInfo> getCastInfo() {
-        return mCastInfo;
     }
 
 }

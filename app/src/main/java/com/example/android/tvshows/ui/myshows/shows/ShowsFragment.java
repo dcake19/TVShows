@@ -40,7 +40,6 @@ public class ShowsFragment extends Fragment implements ShowsContract.View{
 
     @BindView(R.id.recyclerview_shows) RecyclerView mRecyclerView;
 
-
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
