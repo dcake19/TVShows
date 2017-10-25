@@ -201,7 +201,8 @@ public class ActorActivity extends AppCompatActivity implements ActorContract.Vi
                                 mActorPresenter.downloadActorData(getBaseContext());
                             }
                         }
-                ).show();
+                )
+                .show();
     }
 
     @Override

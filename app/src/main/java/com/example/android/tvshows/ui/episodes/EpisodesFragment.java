@@ -46,8 +46,6 @@ public class EpisodesFragment extends Fragment{
         return rootview;
     }
 
-
-
     @OnClick({R.id.link_imdb,R.id.link_tmdb,R.id.link_google_search,R.id.link_youtube_search})
     void visitLink(View view){
         if(view.getId() == R.id.link_imdb){
