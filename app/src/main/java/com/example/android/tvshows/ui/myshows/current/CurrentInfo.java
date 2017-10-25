@@ -4,7 +4,7 @@ package com.example.android.tvshows.ui.myshows.current;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-public class CurrentInfo implements Parcelable{
+public class CurrentInfo {
 
     private String showName,episodeName,overview,posterUrl;
 
@@ -38,36 +38,4 @@ public class CurrentInfo implements Parcelable{
                 && this.overview.equals(currentInfo.getOverview()) && this.posterUrl.equals(currentInfo.getPosterUrl());
     }
 
-    protected CurrentInfo(Parcel in) {
-        showName = in.readString();
-        episodeName = in.readString();
-        overview = in.readString();
-        posterUrl = in.readString();
-    }
-
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(showName);
-        dest.writeString(episodeName);
-        dest.writeString(overview);
-        dest.writeString(posterUrl);
-    }
-
-    @SuppressWarnings("unused")
-    public static final Parcelable.Creator<CurrentInfo> CREATOR = new Parcelable.Creator<CurrentInfo>() {
-        @Override
-        public CurrentInfo createFromParcel(Parcel in) {
-            return new CurrentInfo(in);
-        }
-
-        @Override
-        public CurrentInfo[] newArray(int size) {
-            return new CurrentInfo[size];
-        }
-    };
 }
