@@ -67,11 +67,11 @@ public class UpdatesPresenter implements UpdatesContract.Presenter{
 
     @Override
     public void loadShowsFromDatabase(boolean update) {
-        mTVShows = mShowsRepository.getAllShowsUpdate();
+            mTVShows = mShowsRepository.getAllShowsUpdate();
 
-        setHashtableSeasons(mShowsRepository.getAllSeasons());
+            setHashtableSeasons(mShowsRepository.getAllSeasons());
 
-        display(update);
+            display(update);
     }
 
     private void display(boolean update){

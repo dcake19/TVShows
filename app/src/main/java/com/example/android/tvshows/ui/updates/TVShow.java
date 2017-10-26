@@ -23,7 +23,6 @@ public class TVShow implements Parcelable {
         lastUpdate = Utility.getDateAsString(updateDay,updateMonth,updateYear);
     }
 
-
     protected TVShow(Parcel in) {
         id = in.readByte() == 0x00 ? null : in.readInt();
         name = in.readString();

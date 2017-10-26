@@ -39,7 +39,6 @@ public class SeasonForUpdate implements Parcelable {
         return earlierUpdate(season.updateDay,season.updateMonth, season.updateYear);
     }
 
-
     protected SeasonForUpdate(Parcel in) {
         name = in.readString();
         seasonNumber = in.readInt();

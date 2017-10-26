@@ -16,6 +16,7 @@ import android.widget.CheckBox;
 
 import com.example.android.tvshows.R;
 import com.example.android.tvshows.ShowsApplication;
+import com.example.android.tvshows.ui.myshows.shows.DaggerShowsComponent;
 
 import java.util.ArrayList;
 import java.util.Hashtable;
@@ -39,6 +40,7 @@ public class UpdatesFragment extends Fragment implements  UpdatesContract.View{
     private StaggeredGridLayoutManager mGridLayoutManager;
 
     private boolean mLoaded;
+
 
     @Nullable
     @Override

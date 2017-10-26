@@ -19,7 +19,7 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 
 public class EpisodesFragment extends Fragment{
-
+    //testing
     @BindView(R.id.still_photo) ImageView mStillPhoto;
     @BindView(R.id.episode_name) TextView mEpisodeName;
     @BindView(R.id.overview) TextView mOverview;

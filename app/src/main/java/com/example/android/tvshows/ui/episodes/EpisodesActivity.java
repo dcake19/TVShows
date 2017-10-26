@@ -10,7 +10,6 @@ import android.support.v4.widget.DrawerLayout;
 import android.os.Bundle;
 import android.support.v4.widget.NestedScrollView;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
@@ -20,14 +19,10 @@ import android.widget.Spinner;
 import com.example.android.tvshows.R;
 import com.example.android.tvshows.ShowsApplication;
 import com.example.android.tvshows.data.db.ShowsDbContract;
-import com.example.android.tvshows.data.db.ShowsRepository;
 import com.example.android.tvshows.ui.BaseNavigationActivity;
 import com.example.android.tvshows.ui.tabs.SlidingTabLayout;
 import com.example.android.tvshows.util.ExternalLinks;
-import com.example.android.tvshows.util.Utility;
 import com.squareup.picasso.Picasso;
-
-import java.util.ArrayList;
 
 import javax.inject.Inject;
 
