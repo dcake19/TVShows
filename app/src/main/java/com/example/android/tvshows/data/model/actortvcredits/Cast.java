@@ -7,8 +7,7 @@ import android.os.Parcelable;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-public class Cast implements Parcelable{
-
+public class Cast{
     @SerializedName("character")
     @Expose
     private String character;
@@ -98,57 +97,4 @@ public class Cast implements Parcelable{
         this.posterPath = posterPath;
     }
 
-
-
-
-    protected Cast(Parcel in) {
-        character = in.readString();
-        creditId = in.readString();
-        episodeCount = in.readByte() == 0x00 ? null : in.readInt();
-        firstAirDate = in.readString();
-        id = in.readByte() == 0x00 ? null : in.readInt();
-        name = in.readString();
-        originalName = in.readString();
-        posterPath = in.readString();
-    }
-
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(character);
-        dest.writeString(creditId);
-        if (episodeCount == null) {
-            dest.writeByte((byte) (0x00));
-        } else {
-            dest.writeByte((byte) (0x01));
-            dest.writeInt(episodeCount);
-        }
-        dest.writeString(firstAirDate);
-        if (id == null) {
-            dest.writeByte((byte) (0x00));
-        } else {
-            dest.writeByte((byte) (0x01));
-            dest.writeInt(id);
-        }
-        dest.writeString(name);
-        dest.writeString(originalName);
-        dest.writeString(posterPath);
-    }
-
-    @SuppressWarnings("unused")
-    public static final Parcelable.Creator<Cast> CREATOR = new Parcelable.Creator<Cast>() {
-        @Override
-        public Cast createFromParcel(Parcel in) {
-            return new Cast(in);
-        }
-
-        @Override
-        public Cast[] newArray(int size) {
-            return new Cast[size];
-        }
-    };
 }

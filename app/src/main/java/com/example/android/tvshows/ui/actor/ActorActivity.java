@@ -6,6 +6,8 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.support.annotation.VisibleForTesting;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
@@ -40,27 +42,13 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 
 
-public class ActorActivity extends AppCompatActivity implements ActorContract.View{
+public class ActorActivity extends AppCompatActivity{// implements ActorContract.View{
 
-    private final String OUTSTATE_ACTOR = "actor";
-    private final String OUTSTATE_ACTOR_TV_CREDITS = "actor_tv_credits";
-    private final String OUTSTATE_EXTERNAL_IDS = "external_ids";
+    private final String FRAGMENT = "Actor Fragment";
+    private ActorFragment mFragment;
 
-    @BindView(R.id.actor_photo)ImageView mPhoto;
     @BindView(R.id.actor_name) TextView mName;
-    @BindView(R.id.actor_biography)TextView mBiography;
-    @BindView(R.id.title_biography)TextView mTitleBiography;
-    @BindView(R.id.title_tv_credits)TextView mTitleTvCredits;
-    @BindView(R.id.loading_indicator)ProgressBar mProgressBar;
-    @BindView(R.id.recyclerview_actor)RecyclerView mRecyclerView;
     @BindView(R.id.actor_layout)View mActorLayout;
-
-    @Inject ActorContract.Presenter mActorPresenter;
-    @Inject Picasso mPicasso;
-    @Inject ActorAdapter mActorAdapter;
-
-    private int mTmdbActorId;
-    private boolean mLoaded;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,53 +60,18 @@ public class ActorActivity extends AppCompatActivity implements ActorContract.Vi
 
         ButterKnife.bind(this);
 
-        Intent intent = getIntent();
-        mTmdbActorId = intent.getIntExtra(ShowsDbContract.CastEntry.COLUMN_PERSON_ID, -1);
+        FragmentManager fm = getSupportFragmentManager();
+        mFragment = (ActorFragment) fm.findFragmentByTag(FRAGMENT);
 
-        ShowsApplication showsApplication = (ShowsApplication) getApplication();
+        if(mFragment==null) {
+            mFragment = new ActorFragment();
+            FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
 
-        if(savedInstanceState!=null) {
-            mLoaded = true;
-
-            ExternalIds externalIds = savedInstanceState.getParcelable(OUTSTATE_EXTERNAL_IDS);
-            ActorTVCredits actorTVCredits = savedInstanceState.getParcelable(OUTSTATE_ACTOR_TV_CREDITS);
-            Actor actor = savedInstanceState.getParcelable(OUTSTATE_ACTOR);
-
-            ActorComponent component = DaggerActorComponent.builder()
-                    .applicationComponent(showsApplication.get(this).getComponent())
-                    .actorModule(showsApplication.getActorModule(this, this, mTmdbActorId,
-                            externalIds,actorTVCredits,actor))
-                    .build();
-            component.inject(this);
+            fragmentTransaction.add(R.id.actor_content, mFragment, FRAGMENT);
+            fragmentTransaction.commit();
         }
-        else {
-            mLoaded = false;
 
-            ActorComponent component = DaggerActorComponent.builder()
-                    .applicationComponent(showsApplication.get(this).getComponent())
-                    .actorModule(showsApplication.getActorModule(this, this, mTmdbActorId))
-                    .build();
-            component.inject(this);
-        }
-        setupRecyclerView();
         setupToolbar();
-
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        if(!mLoaded)
-            mActorPresenter.downloadActorData(getBaseContext());
-        else
-            mActorPresenter.setActorData();
-    }
-
-    private void setupRecyclerView(){
-        mRecyclerView.setAdapter(mActorAdapter);
-        GridLayoutManager glm = new GridLayoutManager(this,1);
-        mRecyclerView.setLayoutManager(glm);
-        mRecyclerView.setNestedScrollingEnabled(false);
     }
 
     private void setupToolbar(){
@@ -150,7 +103,7 @@ public class ActorActivity extends AppCompatActivity implements ActorContract.Vi
                 imdb.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        ExternalLinks.visitIMDBActorPage(getBaseContext(),mActorPresenter.getActorIMDBId());
+                        ExternalLinks.visitIMDBActorPage(getBaseContext(),mFragment.mActorPresenter.getActorIMDBId());
                     }
                 });
                 PopupWindow linksPopupWindow = new PopupWindow(
@@ -166,56 +119,18 @@ public class ActorActivity extends AppCompatActivity implements ActorContract.Vi
         return super.onOptionsItemSelected(item);
     }
 
-    @Override
-    public void setImage(String url) {
-        mPicasso.load(getString(R.string.poster_path)+url).into(mPhoto);
-    }
-
-    @Override
-    public void setName(String name) {
-        mProgressBar.setVisibility(View.INVISIBLE);
-        mName.setText(name);
-    }
-
-    @Override
-    public void setBiography(String biography) {
-        mTitleBiography.setVisibility(View.VISIBLE);
-        mBiography.setText(biography);
-    }
-
-    @Override
-    public void displayCredits(int size) {
-        mTitleTvCredits.setVisibility(View.VISIBLE);
-        mActorAdapter.displayCredits(size);
-    }
-
-    @Override
     public void noConnection() {
-        mProgressBar.setVisibility(View.INVISIBLE);
         Snackbar.make(mActorLayout, getResources().getString(R.string.no_connection), Snackbar.LENGTH_INDEFINITE)
                 .setAction(getResources().getString(R.string.retry),
                         new View.OnClickListener(){
                             @Override
                             public void onClick(View v) {
-                                mProgressBar.setVisibility(View.VISIBLE);
-                                mActorPresenter.downloadActorData(getBaseContext());
+                                mFragment.mProgressBar.setVisibility(View.VISIBLE);
+                                mFragment.mActorPresenter.downloadActorData(getBaseContext());
                             }
                         }
                 )
                 .show();
-    }
-
-    @Override
-    public void startingDownload() {
-        mProgressBar.setVisibility(View.VISIBLE);
-    }
-
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        outState.putParcelable(OUTSTATE_ACTOR,mActorPresenter.getActor());
-        outState.putParcelable(OUTSTATE_ACTOR_TV_CREDITS,mActorPresenter.getActorTVCredits());
-        outState.putParcelable(OUTSTATE_EXTERNAL_IDS,mActorPresenter.getExternalIds());
     }
 
     public static Intent getIntent(Context context,int personId){

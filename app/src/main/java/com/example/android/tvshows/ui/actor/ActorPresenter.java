@@ -31,6 +31,7 @@ public class ActorPresenter implements ActorContract.Presenter {
     private ExternalIds mExternalIds;
     private ActorTVCredits mActorTVCredits;
     private Actor mActor;
+    private boolean mSubscribed,mComplete;
 
     public ActorPresenter(ActorContract.View actorView,int tmdbActorId,ApiService apiService) {
         mActorView = actorView;
@@ -38,19 +39,15 @@ public class ActorPresenter implements ActorContract.Presenter {
         mApiService = apiService;
     }
 
-    public ActorPresenter(ActorContract.View actorView,int tmdbActorId,ApiService apiService,
-                          ExternalIds externalIds,ActorTVCredits actorTVCredits, Actor actor) {
-        mActorView = actorView;
-        mTmdbActorId = tmdbActorId;
-        mApiService = apiService;
-        mExternalIds = externalIds;
-        mActorTVCredits = actorTVCredits;
-        mActor = actor;
-    }
-
     @Override
     public void downloadActorData(Context context) {
+        if(!mSubscribed)
+            subscribe(context);
+        else if(mComplete)
+            display();
+    }
 
+    private void subscribe(Context context){
         mActorView.startingDownload();
 
         ConnectivityManager connMgr = (ConnectivityManager)
@@ -80,7 +77,7 @@ public class ActorPresenter implements ActorContract.Presenter {
                     .subscribe(new Observer<ActorFullDetails>() {
                         @Override
                         public void onSubscribe(Disposable d) {
-
+                            mSubscribed = true;
                         }
 
                         @Override
@@ -88,25 +85,30 @@ public class ActorPresenter implements ActorContract.Presenter {
                             mActor = actorFullDetails.mActor;
                             mActorTVCredits = actorFullDetails.mActorTVCredits;
                             mExternalIds = actorFullDetails.mExternalIds;
-                            mActorView.setName(actorFullDetails.mActor.getName());
-                            mActorView.setBiography(actorFullDetails.mActor.getBiography());
-                            mActorView.setImage(actorFullDetails.mActor.getProfilePath());
-                            mActorView.displayCredits(mActorTVCredits.getCast().size());
+                            display();
                         }
 
                         @Override
                         public void onError(Throwable e) {
+                            mSubscribed = false;
                             mActorView.noConnection();
                         }
 
                         @Override
                         public void onComplete() {
-
+                            mComplete = true;
                         }
                     });
         }else{
             mActorView.noConnection();
         }
+    }
+
+    private void display(){
+        mActorView.setName(mActor.getName());
+        mActorView.setBiography(mActor.getBiography());
+        mActorView.setImage(mActor.getProfilePath());
+        mActorView.displayCredits(mActorTVCredits.getCast().size());
     }
 
     @Override

@@ -78,10 +78,10 @@ public class ShowsApplication extends Application {
         return new ActorModule(actorActivity,view,tmdbActorId);
     }
 
-    public ActorModule getActorModule(ActorActivity actorActivity, ActorContract.View view, int tmdbActorId,
-                                      ExternalIds externalIds, ActorTVCredits actorTVCredits, Actor actor) {
-        return new ActorModule(actorActivity,view,tmdbActorId,externalIds,actorTVCredits, actor);
-    }
+//    public ActorModule getActorModule(ActorActivity actorActivity, ActorContract.View view, int tmdbActorId,
+//                                      ExternalIds externalIds, ActorTVCredits actorTVCredits, Actor actor) {
+//        return new ActorModule(actorActivity,view,tmdbActorId,externalIds,actorTVCredits, actor);
+//    }
 
     public EpisodesModule getEpisodesModule(EpisodesActivity episodesActivity, EpisodesContract.View view, String[] seasonNames, int showId, int seasonNumber, int[] seasonNumbers) {
         return new EpisodesModule(episodesActivity, view, seasonNames, showId, seasonNumber, seasonNumbers);
